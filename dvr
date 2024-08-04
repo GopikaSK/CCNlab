@@ -1,0 +1,65 @@
+# Create a simulator object
+set ns [new Simulator]
+
+# Define the trace file and nam file
+set tracefile [open out.tr w]
+set namfile [open out.nam w]
+$ns trace-all $tracefile
+$ns namtrace-all $namfile
+
+# Set the routing protocol to Distance Vector
+$ns rtproto DV
+
+# Create 10 nodes
+for {set i 0} {$i < 10} {incr i} {
+    set node($i) [$ns node]
+}
+
+# Create duplex links between nodes
+$ns duplex-link $node(0) $node(1) 1Mb 10ms DropTail
+$ns duplex-link $node(1) $node(2) 1Mb 10ms DropTail
+$ns duplex-link $node(2) $node(3) 1Mb 10ms DropTail
+$ns duplex-link $node(3) $node(4) 1Mb 10ms DropTail
+$ns duplex-link $node(4) $node(5) 1Mb 10ms DropTail
+$ns duplex-link $node(5) $node(6) 1Mb 10ms DropTail
+$ns duplex-link $node(6) $node(7) 1Mb 10ms DropTail
+$ns duplex-link $node(7) $node(8) 1Mb 10ms DropTail
+$ns duplex-link $node(8) $node(9) 1Mb 10ms DropTail
+$ns duplex-link $node(9) $node(0) 1Mb 10ms DropTail
+
+# Create a UDP agent and attach it to node 0
+set udp0 [new Agent/UDP]
+$ns attach-agent $node(0) $udp0
+
+# Create a CBR traffic source and attach it to the UDP agent
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 512
+$cbr0 set interval_ 0.1
+$cbr0 attach-agent $udp0
+
+# Create a Null agent and attach it to node 9
+set null0 [new Agent/Null]
+$ns attach-agent $node(9) $null0
+
+# Connect the UDP agent to the Null agent
+$ns connect $udp0 $null0
+
+# Schedule the CBR traffic
+$ns at 0.5 "$cbr0 start"
+$ns at 4.5 "$cbr0 stop"
+
+# Schedule the simulation end
+$ns at 5.0 "finish"
+
+# Define the finish procedure
+proc finish {} {
+    global ns tracefile namfile
+    $ns flush-trace
+    close $tracefile
+    close $namfile
+    exec nam out.nam &
+    exit 0
+}
+
+# Run the simulation
+$ns run
