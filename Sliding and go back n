@@ -7,13 +7,13 @@ struct frame {
     int data;
 };
 
-int n, r;
+int n, r,i;
 struct frame frm[10];
 
 void sender() {
     printf("\nEnter the number of frames: ");
     scanf("%d", &n);
-    for (int i = 1; i <= n; i++) {
+    for (i = 1; i <= n; i++) {
         printf("Enter data for frame[%d]: ", i);
         scanf("%d", &frm[i].data);
         frm[i].ack = 'y';
