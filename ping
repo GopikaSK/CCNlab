@@ -60,10 +60,13 @@ Agent/Ping instproc recv {from rtt} {
 }
 
 # Schedule ping events
-for {set i 0.1} {$i <= 1.8} {incr i 0.1} {
-    $ns at $i "$ping0 send"
-    $ns at $i "$ping5 send"
+set interval 0.1
+for {set i 1} {$i <= 18} {incr i} {
+    set time [expr $i * $interval]
+    $ns at $time "$ping0 send"
+    $ns at $time "$ping5 send"
 }
+
 
 # Custom finish procedure
 proc my_finish {} {
